@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.OrderInfoMapper">
+<!--    订单生成-->
+    <insert id="save" parameterType="OrderInfo">
+        insert into `orderinfo`(`uid`,`orderid`,`total`,`money`,`date`,`state`) values (#{user.id},#{orderid},#{total},#{money},#{date},0)
+    </insert>
+
+<!--    查询用户订单数量-->
+    <select id="countByUid" resultType="int" parameterType="long">
+        select count(uid) from `orderinfo` where `uid`=#{uid} and `delstate`=1;
+    </select>
+
+<!--    查询所有订单条数-->
+    <select id="countAllOrderInfo" resultType="int">
+        select count(*) from `orderinfo` where `delstate`=1
+    </select>
+
+    <select id="countByState" resultType="int">
+        select count(*) from `orderinfo` where 1=1
+        <if test="date1!='' and date2!='' ">
+            and `date` between #{date1} and #{date2}
+        </if>
+        <if test="state!=-1">
+            and state=#{state}
+        </if>
+    </select>
+
+<!--    <select id="countByState" resultType="int">-->
+<!--        select count(*) from `orderinfo` where `date` between #{param1} and #{param2}-->
+<!--        <if test="state!=-1">-->
+<!--            and state=#{param3}-->
+<!--        </if>-->
+<!--    </select>-->
+
+<!--    M 订单评价-->
+    <update id="evaluate" parameterType="OrderInfo">
+        update `orderinfo` i set i.`star`=#{star},i.`comments`=#{comments} where i.`uid`=#{user.id} and i.`id`=#{id}
+    </update>
+
+<!--    用户退单-->
+    <delete id="delete">
+        delete  from `orderinfo` where  `uid` =#{param1} and `orderid`=#{param2}
+    </delete>
+
+    <update id="updateState">
+        update `orderinfo` set `state`=1 where id=#{param1}
+    </update>
+
+</mapper>

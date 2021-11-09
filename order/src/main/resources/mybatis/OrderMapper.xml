@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.OrderMapper">
+
+    <resultMap id="orderMap" type="com.niit.entity.Order">
+        <result property="menuname" column="menu_name"/>
+
+        <association property="orderinfo" javaType="com.niit.entity.OrderInfo">
+            <id property="id" column="id"/>
+            <result property="orderid" column="orderid"/>
+            <result property="total" column="total"/>
+            <result property="money" column="money"/>
+            <result property="date" column="date"/>
+            <result property="state" column="state"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="orderMap2" type="com.niit.entity.Order">
+        <result property="menuname" column="menu_name"/>
+
+        <association property="orderinfo" javaType="com.niit.entity.OrderInfo">
+            <id property="id" column="id"/>
+            <result property="orderid" column="orderid"/>
+            <result property="total" column="total"/>
+            <result property="money" column="money"/>
+            <result property="date" column="date"/>
+            <result property="state" column="state"/>
+        </association>
+
+        <association property="user" javaType="com.niit.entity.User">
+            <result property="nickname" column="nickname"/>
+            <result property="telephone" column="telephone"/>
+            <result property="address" column="address"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="orderMap3" type="com.niit.entity.Order">
+        <result property="count" column="count"/>
+        <result property="subtotal" column="subtotal"/>
+        <association property="menu" javaType="com.niit.entity.Menu">
+            <result property="name" column="name"/>
+        </association>
+    </resultMap>
+<!--    //保存订单-->
+    <insert id="save" parameterType="Order">
+    		insert into `order` (`uid`,`oid`,`mid`,`count`,`subtotal`) values(#{user.id},#{orderinfo.orderid},#{menu.id},#{count},#{subtotal})
+    </insert>
+
+<!--    通过用户id查找订单-->
+    <select id="findAllByUid" resultMap="orderMap" >
+        select i.`id`, i.`orderid`, i.`total`, i.`money`, i.`date`,  group_concat(concat(m.`name`,'*',`count`,'=',`subtotal`))menu_name, i.`state` from `orderinfo` i,`order` o ,`menu`m
+        where i.`uid`=#{param1} and o.`oid`=i.`orderid` and o.`mid`=m.`id` and i.`delstate`=1 group by i.`id`  order by i.`date` desc limit #{param2},#{param3}
+    </select>
+
+<!--    查询所有订单-->
+    <select id="findAllOrder" resultMap="orderMap2">
+        select i.`id`,i.`orderid`,`nickname`,group_concat(concat(m.`name`,'*',`count`,'=',`subtotal`))menu_name,i.`total`,i.`money`,u.`telephone`,u.`address`,i.`date`,i.`state` from `order` o,`orderinfo` i,`user` u,`menu` m
+        where i.`uid`=u.`id` and o.`oid`=i.`orderid` and o.`mid`=m.`id` and i.`delstate`=1 group by i.`id` order by i.`date` desc limit #{param1},#{param2};
+    </select>
+
+<!--    根据管理员需求查询订单-->
+<!--    <select id="findAllByState" resultMap="orderMap2">-->
+<!--        select i.`id`,i.`orderid`,`nickname`,group_concat(concat(m.`name`,'*',`count`,'=',`subtotal`))menu_name,i.`total`,i.`money`,u.`telephone`,u.`address`,i.`date`,i.`state` from `order` o,`orderinfo` i,`user` u,`menu` m-->
+<!--        where i.`uid`=u.`id` and o.`oid`=i.`orderid` and o.`mid`=m.`id`  and i.`delstate`=1 and i.`date` between #{param1} and #{param2}-->
+<!--         <if test="state!=-1">-->
+<!--             and i.state=#{param3}-->
+<!--         </if>-->
+<!--         group by i.`id` order by i.`date` desc limit #{param4},#{param5};-->
+<!--    </select>-->
+    <!--    根据管理员需求查询订单-->
+    <select id="findAllByState" resultMap="orderMap2">
+        select i.`id`,i.`orderid`,`nickname`,group_concat(concat(m.`name`,'*',`count`,'=',`subtotal`))menu_name,i.`total`,i.`money`,u.`telephone`,u.`address`,i.`date`,i.`state` from `order` o,`orderinfo` i,`user` u,`menu` m
+        where i.`uid`=u.`id` and o.`oid`=i.`orderid` and o.`mid`=m.`id` and i.`delstate`=1
+        <if test="date1!='' and date2!=''">
+            and  i.`date`  between #{date1} and #{date2}
+        </if>
+        <if test="state!=null and state!=-1">
+            and i.state=#{state}
+        </if>
+        group by i.`id` order by i.`date` desc limit #{index},#{limit};
+    </select>
+
+<!--    用户退单-->
+    <delete id="delete">
+        delete  from `order` where  `uid` =#{param1} and `oid`=#{param2}
+    </delete>
+
+
+
+<!--    <select id="findAllByUid" resultMap="orderMap">-->
+<!--		select m.id mid,m.name,m.price,m.flavor,o.id oid,o.date,o.state from `order` o,`menu` m where o.mid = m.id and o.uid = #{param1} order by oid limit #{param2},#{param3}-->
+<!--	</select>-->
+
+<!--    //根据用户查询订单数量-->
+<!--    <select id="countByUid" parameterType="long" resultType="int">-->
+<!--		select count(uid) from `order` where uid = #{uid}-->
+<!--	</select>-->
+<!--    //管理员删除订单，待完善-->
+<!--    <delete id="deleteByMid" parameterType="long">&lt;!&ndash;parameterType : 参数类型 ;&ndash;&gt;-->
+<!--		delete from `order` where mid = #{mid}-->
+<!--	</delete>-->
+<!--    //用户删除订单,待完善-->
+<!--    <delete id="deleteByUid" parameterType="long">-->
+<!--		delete from `order` where uid = #{uid}-->
+<!--	</delete>-->
+
+<!--    通过订单状态查看订单？-->
+<!--    <select id="findAllByState" resultMap="orderMap2">-->
+<!--		select m.id mid,m.name,m.price,m.flavor,o.id oid,o.date,u.id uid,u.nickname,u.telephone,u.address from `order` o,`menu` m,`user` u where o.mid = m.id and o.uid = u.id and o.state = 0 order by oid limit #{param1},#{param2}-->
+<!--	</select>-->
+
+<!--    //根据订单状态查询条数-->
+<!--    <select id="countByState" parameterType="int" resultType="int">-->
+<!--		select count(mid) from `order` where state = 0-->
+<!--	</select>-->
+<!--    //修改订单状态-->
+<!--    <update id="updateState">-->
+<!--		update `order` set aid = #{param2},state = 1 where id = #{param1}-->
+<!--	</update>-->
+
+</mapper>

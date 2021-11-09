@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html >
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<style>
+    .layui-table-cell{
+        font-size:14px;
+        height: auto;
+        padding: 0 5px;
+        line-height: normal;
+        overflow: visible;
+        text-overflow: inherit;
+        white-space: normal;
+        word-break: break-all;
+    }
+    /*注意layui-table-cell同时也是layui内置样式*/
+</style>
+<body >
+        <table class="layui-hide layui-table-cell" id="test"  lay-filter="test"></table>
+
+</body>
+</html>
+
+<script src="layui/layui.js" charset="utf-8"></script>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script>
+
+    layui.use(['table', 'laydate','form','element'],function(){
+        var table = layui.table;
+        var laydate = layui.laydate;
+        var element = layui.element;
+        var form=layui.form;
+
+        var orderdata=table.render({
+            elem: '#test'
+            ,url:'/feedback/showComments'
+            ,title: '评价列表'
+            ,cols: [
+                [
+                    {field:'id', width:100, title: '编号', sort: true},
+                    {field:'username', width:150, title: '用户名', sort: true,templet:function (data) {
+                            return data.user.username;
+                        }},
+                    {field: 'nickname', width: 150, title: '昵称',templet:function (data) {
+                        return data.user.nickname;
+                        }},
+                    {field: 'name', width: 150, title: '菜名',templet:function (data) {
+                        return data.menu.name;
+                        }},
+                    {field: 'star', width: 50, title: '星级'},
+                    {field: 'comment',  title: '评价'},
+                    // {fixed:'right',width:300,title:'派送状态',templet:'#barDemo'}
+                    // ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:90}
+                ]
+            ]
+            ,page:{
+                limits:[5,10,15,20]
+            }
+        });
+    });
+
+
+</script>

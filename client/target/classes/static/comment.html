@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh" style="width: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>评论</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<body >
+<style>
+    /*body{*/
+
+    /*    background-image: url("/images/canting-015.jpg");*/
+    /*    background-repeat: repeat-y;*/
+    /*    right: 0px;*/
+    /*    width: 100%;*/
+    /*    background-size: 100% 100%;*/
+    /*    !*background-attachment: fixed;*!*/
+    /*    !*background-position: 100%,100%;*!*/
+
+    /*}*/
+    /*#pic*/
+    /*{*/
+    /*    opacity:0.6;*/
+    /*}*/
+    /*防止select标签被浏览器或不明生物遮挡，规定一个最大高度*/
+    .layui-form-select dl {
+        max-height:160px;
+    }
+</style>
+<!--<div id="pic"style="position:fixed; z-index: -1; width: 100%; height: 100%; left: 0px; top:0px;">-->
+<!--    <img src="/images/canting-015.jpg" width="100%" height="100%" /></div>-->
+<div class="layui-container" style="width: 1250px;height: 600px;margin-top: 0px;left: 0;">
+    <!-- 顶部菜单开始 -->
+    <div class="layui-header" style="margin-bottom: 50px">
+        <div class="layui-logo" style="width: 100px;height: 100px;"><img src="favicon.ico" style="width: 100%;height: 100px"/></div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="/images/img.jpeg" class="layui-nav-img">
+                    <span id="nickname"></span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="index.html">自由点菜</a></dd>
+                    <dd><a href="order.html">个人订单</a></dd>
+                    <dd><a href="modify_info.html">个人信息</a></dd>
+                    <dd><a href="feedback.html">信息反馈</a></dd>
+                    <dd><a href="comment.html">菜品点评</a></dd>
+                    <dd><a href="/account/logout/user">退出系统</a></dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+
+    <div class="layui-carousel" id="lunbo" lay-filter="lunbo" style="margin-bottom: 50px">
+        <div carousel-item="">
+            <div><img src="/images/canting.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-001.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-002.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-007.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-009.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-005.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-006.jpg" style="width: 100%;height: 100%"></div>
+        </div>
+    </div>
+
+    <div id="evaluate" class="layui-container" style="margin:0 auto;width: 500px;" >
+        <form class="layui-form" action="/" method="post">
+            <!--                action与method不填-->
+            <!--                一定要有layui-form,否则验证不生效-->
+            <div class="layui-input-block" style="margin-bottom: 50px">
+                <h1 >您对店内菜品的评价：</h1>
+            </div>
+
+            <div class="layui-form-item" >
+                <label class="layui-form-label">菜名</label>
+                <div class="layui-input-inline" >
+                    <select name="menu.id" lay-verify="required" class="layui-form-select">
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item" style="margin-top: 40px">
+                <label class="layui-form-label">您对此菜品的满意度：</label>
+                <div class="layui-inline">
+                    <div id="test5"></div>
+                </div>
+            </div>
+            <div>
+                <input type="hidden" id="star" name="star">
+            </div>
+
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label" >您对此菜品的建议或意见：</label>
+                <div class="layui-input-block " >
+                    <textarea id="comment" name="comment" lay-verify="required"  placeholder="请输入。。。"  style="width: 400px; height: 250px"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo" >立即提交</button>
+
+                    <button type="reset" class="layui-btn layui-btn-primary" style="margin-left: 100px">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+
+
+
+</body>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script  src="layui/layui.js" charset="utf-8"></script>
+
+<script>
+
+    $.ajax({
+        url:"/account/allname",
+        type:"GET",
+        success:function (result) {
+            $("#nickname").text(result.extend.user.nickname)
+        }
+    });
+
+    layui.use(['rate','element','form','carousel'], function(){
+        var rate = layui.rate;
+        var element=layui.element;
+        var form = layui.form; //只有执行了这一步，部分表单元素才会自动修饰成功
+        var carousel=layui.carousel;
+        //常规轮播
+        carousel.render({
+            elem: '#lunbo',
+            width:'100%',
+            height:'500px',
+            arrow: 'always'
+        });
+        $.ajax({
+            url: "/menu/findAllMenu",
+            type: "GET",
+            success: function (result) {
+                var name = result.extend.menuname;
+                $.each(name, function (index, item) {
+                    $("<option></option>").append(item.name).attr("value", item.id).appendTo("#evaluate select");
+                });
+                //但是，如果你的HTML是动态生成的，自动渲染就会失效
+                //因此你需要在相应的地方，执行下述方法来手动渲染，跟这类似的还有 element.init();
+                form.render();
+            }
+        });
+        //自定义文本
+        rate.render({
+            elem: '#test5'
+            // ,value: 3
+            ,text: true
+            ,choose: function (value) {
+                $('#star').val(value);
+            }
+            ,setText: function(value){ //自定义文本的回调
+                var arrs = {
+                    '1': '非常差'
+                    ,'2': '差'
+                    ,'3': '一般'
+                    ,'4': '满意'
+                    ,'5': '超赞'
+                };
+                this.span.text(arrs[value] || ( value + "星"));
+            }
+        })
+
+        form.on('submit(formDemo)',function () {
+            $.ajax({
+                url:"/feedback/commentSave",
+                type:"POST",
+                success:function (result) {
+                    if(result.msg=="处理成功"){
+                        alert("您的意见提交成功！");
+                        window.location.reload();
+                    }
+
+                }
+            })
+            return false;
+        })
+    })
+</script>
+
+</html>

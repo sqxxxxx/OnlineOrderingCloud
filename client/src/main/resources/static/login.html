@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<style>
+    .icon-css-view{
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        top: 7px;
+        right: 0px;
+        text-align: center;
+    }
+</style>
+<body>
+    <div class="layui-container" style="width: 500px;height: 330px;margin-top: 130px;border: 1px solid #009688;padding-top: 60px;border-radius: 15px">
+        <form class="layui-form" action="/account/login" method="post" id="logintest">
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户名</label>
+                <div class="layui-inline">
+                    <input value="zhangsan" type="text" name="username1" lay-verify="username" autocomplete="off" placeholder="请输入用户名" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">密码</label>
+                <div class="layui-inline">
+                    <input value="Zhangsan123" type="password" id="password1" name="password1"  lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                        <div class="icon-css-view" >
+                            <i id="iconShowView" class="layui-icon icon-mimaxianshi" ></i>
+                            <i id="iconHiddenView" class="layui-icon icon-mimayincang" hidden></i>
+                        </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">单选框</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="type" value="user" title="用户" checked="">
+                    <input type="radio" name="type" value="admin" title="管理员">
+                </div>
+            </div>
+            <div class="layui-form-item">
+
+                <button class="layui-btn" lay-submit lay-filter="formDemo" style="margin-left: 160px">登陆</button>
+                <input type="button" value="注册" class="layui-btn"  style="margin-right: 160px;" onclick="register(this)">
+<!--                在form表单中的<button>默认type = “submit”，改为type="button"就没有表单的默认事件了-->
+            </div>
+<!--            <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="reduce">-->
+<!--                <i class="layui-icon layui-icon-reduce-circle" ></i>-->
+<!--                <i class="layui-icon ">&#xe616;</i>-->
+<!--            </a>-->
+        </form>
+    </div>
+
+
+    <!--模仿bootstrap的模态框-->
+    <div id="register" style="display: none;" >
+        <form class="layui-form" action="" >
+            <div class="layui-form-item">
+                <p>用户名以字母开头，长度在6-16之间，只能包含字母、数字</p>
+                <p>密码必须包含大小写字母和数字的组合，不能使用特殊字符，长度在 8-18 之间</p>
+                <p>昵称输入最多包括中文，字母，数字在内的6个字符</p>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户名：</label>
+                <div class="layui-inline">
+<!--                    <input type="text" name="username" lay-verify="username" autocomplete="off" placeholder="请输入用户名" class="layui-input">-->
+                    <input type="text" name="username" id="username" lay-verify="username" autocomplete="off" placeholder="请输入用户名" class="layui-input" onblur="verify_repeat()">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">密码：</label>
+                <div class="layui-inline">
+                    <input type="password" name="password" id="password" lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">昵称：</label>
+                <div class="layui-inline">
+                    <input type="text" name="nickname" id="nickname" lay-verify="required" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">性别：</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="gender" value="男" title="男" checked="">
+                    <input type="radio" name="gender" value="女" title="女">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">联系电话：</label>
+                <div class="layui-inline">
+                    <input type="text" name="telephone" id="telephone" lay-verify="telephone" placeholder="请输入联系电话" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">地址：</label>
+                <div class="layui-inline">
+                    <input type="text" name="address" id="address" lay-verify="required" placeholder="请输入地址" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+<!--            <div class="layui-form-item">-->
+<!--                <button class="layui-btn" lay-submit="" style="margin-left: 160px;">提交</button>-->
+<!--            </div>-->
+        </form>
+    </div>
+
+
+</body>
+</html>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script  src="layui/layui.js" charset="utf-8"></script>
+<!--<script src="layui/lay/modules/layer.js"></script>-->
+
+<script>
+
+        // 是否显示密码
+        var password = $("#password1");
+        $("#iconShowView").on('click', function(e){
+            console.log("smile");
+            password[0].type = "text";
+            $("#iconShowView")[0].hidden = true;
+            $("#iconHiddenView")[0].hidden = false;
+            form.render();
+        });
+        $("#iconHiddenView").on('click', function(e){
+            console.log("cry");
+            password[0].type = "password";
+            $("#iconShowView")[0].hidden = false;
+            $("#iconHiddenView")[0].hidden = true;
+            form.render();
+        });
+        layui.use(['form'], function(){
+            var form = layui.form;
+            //自定义验证规则
+            form.verify({
+                username: function(value){
+                    if(value.length == 0){
+                        return '用户名不能为空';
+                    }
+                }
+                ,password: [/(.+){6,12}$/, '密码必须6到12位'],
+            });
+
+        });
+        function register(obj) {
+            var register = layui.use(['layer'],function () {
+                var layer = layui.layer,$=layui.$;
+
+
+                layer.open({
+                    type:1,                     //类型
+                    area:['400px','350px'],     //定义宽和高
+                    title:'用户注册',           //题目
+                    content: $('#register'), //打开的内容
+                    btn: ['确认注册', '取消'],
+
+                    yes: function (index, layero) {
+//这里注意两个要点：①在 JS 中，var verify_result=new Boolean()，只有括号里 0，-0，NaN，
+// ""，null，undefined，false 这几个值转布尔值时，结果为 false，即使是"false","true",
+// 结果也均为true
+// ②var y=new Boolean(0)，加了 new，那么 y 就是一个 Boolean 类型的对象，
+// 执行 if(y) 时，对象转布尔，始终是 true,但如果是var y=Boolean(0)，此时是强制类型转换，
+// y的值此时为false
+                        var username_rule=/^[a-zA-Z][a-zA-Z0-9]{5,15}$/;
+                        var password_rule=/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{7,17}$/;
+                        var telephone_rule=/^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/;
+                        var nickname_rule=/^[a-zA-Z0-9\u4e00-\u9fa5]{1,6}$/;
+                        var verify_username=username_rule.test($("#username").val());
+                        var verify_password=password_rule.test($("#password").val());
+                        var verify_telephone=telephone_rule.test($("#telephone").val());
+                        var verify_nickname=nickname_rule.test($("#nickname").val());
+                        // var sub=false;
+                        if(!verify_username){
+                            layer.msg("用户名以字母开头，长度在6-16之间，只能包含字母、数字");
+                            return false;
+                        }
+                        if(!verify_password){
+                            layer.msg("密码必须包含大小写字母和数字的组合，不能使用特殊字符，长度在 8-18 之间")
+                            return false;
+                        }
+                        if(!verify_nickname){
+                            layer.msg("昵称输入最多包括中文，字母，数字在内的6个字符");
+                            return false;
+                        }
+                        if(!verify_telephone){
+                            layer.msg("输入正确的手机号码");
+                            return false;
+                        }
+                        if($("#address").val().length==0){
+                            layer.msg("地址不能为空");
+                            return false;
+                        }
+
+                        // $.ajax({
+                        //     async:false,
+                        //     url:"/user/queryUsername",
+                        //     type:"GET",
+                        //     contentType:"application/json",
+                        //     data:{
+                        //         "username": $("#username").val()
+                        //     },
+                        //     success : function (result) {
+                        //         console.log(result.msg)
+                        //         if(result.msg=="处理失败"){
+                        //
+                        //         }else {
+                        //             sub=true;
+                        //             console.log($("#username").val());
+                        //             console.log(sub)
+                        //             layer.msg("用户名重复！");
+                        //         }
+                        //     }
+                        // });
+
+                        // console.log(sub)
+                        // if(sub==true){
+                        $.ajax({
+                            url:"/account/save",
+                            type:"POST",
+                            data:$("#register form").serialize(),
+                            success : function (result) {
+                                // console.log(verify_username_result+"  "+verify_password_result+"  "+verify_telephone_result+" "+verify_nickname_result+" "+verify_address_result+" "+verify_result);
+                                if(result.msg=="处理成功")
+                                    alert("注册成功");
+                                window.location.reload();
+                                layer.close(register);
+                            }
+                        });
+                    }
+                    // }
+
+                });
+            });
+
+        }
+</script>
+
+<!--click两种方式：（username是id选择器）-->
+<!-- $(document).on('click','#username',function(){-->
+<!--     layer.msg("asd");-->
+<!-- })-->
+<!-- $('#username').click(function(){-->
+<!--     layer.msg("ads");-->
+<!--})-->

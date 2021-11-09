@@ -1,0 +1,21 @@
+server:
+  port: 5020
+spring:
+  application:
+    name: client
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+  resources:
+    static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/, classpath:/templates/
+  #    关闭thymeleaf缓存
+#  thymeleaf:
+#    cache: false
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:5000/eureka/
+  instance:
+    instance-id: client-5020
+    prefer-ip-address: true

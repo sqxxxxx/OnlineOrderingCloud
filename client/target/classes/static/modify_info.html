@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<body>
+<!--padding-top: 60px;-->
+<div class="layui-container" style="width: 1250px;height: 600px;margin-top: 0px;left: 0;">
+    <!-- 顶部菜单开始 -->
+    <div class="layui-header" style="margin-bottom: 60px">
+        <div class="layui-logo" style="width: 100px;height: 100px;"><img src="favicon.ico" style="width: 100%;height: 100px"/></div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="/images/img.jpeg" class="layui-nav-img">
+                    <span id="nname"></span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="index.html">自由点菜</a></dd>
+                    <dd><a href="order.html">个人订单</a></dd>
+                    <dd><a href="modify_info.html">个人信息</a></dd>
+                    <dd><a href="feedback.html">信息反馈</a></dd>
+                    <dd><a href="comment.html">菜品点评</a></dd>
+                    <dd><a href="/account/logout/user">退出系统</a></dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+
+    <!--    轮播动画-->
+    <div class="layui-carousel" id="lunbo" lay-filter="lunbo" style="margin-bottom: 50px">
+        <div carousel-item="">
+            <div><img src="/images/canting.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-001.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-002.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-007.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-009.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-005.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-006.jpg" style="width: 100%;height: 100%"></div>
+        </div>
+    </div>
+
+
+<!--    <div class="layui-container" style="margin-top: 50px;">-->
+<!--        padding-left:160px; height: 330px;padding-top: 60px;-->
+        <div class="layui-container" style="margin:0 auto; width:400px;" id="modify_user">
+            <form  action="" method="post" class="layui-form">
+<!--                <input type="hidden" name="_method" value="put">也可以用这个方式put数据-->
+
+                <!--                一定要有layui-form,否则验证不生效-->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户名：</label>
+                    <div class="layui-inline">
+                        <input type="text" id="username" name="username" lay-verify="username"  autocomplete="off" placeholder="请输入用户名" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密码：</label>
+                    <div class="layui-inline">
+                        <input type="password" id="password" name="password" lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">昵称：</label>
+                    <div class="layui-inline">
+                        <input type="text" id="nickname" name="nickname" lay-verify="required" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别：</label>
+                    <div class="layui-input-inline">
+                        <input type="radio" id="male" name="gender" value="男" title="男" >
+                        <input type="radio"  id="female" name="gender" value="女" title="女">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话：</label>
+                    <div class="layui-inline">
+                        <input type="text" id="telephone" name="telephone" lay-verify="telephone" placeholder="请输入联系电话" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">地址：</label>
+                    <div class="layui-inline">
+                        <input type="text" id="address" name="address" lay-verify="required" placeholder="请输入地址" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item" style="margin-left:100px">
+                    <input type="button" id="mod_btn" name="mod_btn" value="修改个人信息" class="layui-btn"  style="margin-right: 40px;" onclick="modify()">
+                    <button id="sub_btn" name="sub_btn" class="layui-btn" lay-submit="" lay-filter="formDemo" style=" display: none" >提交</button>
+                </div>
+            </form>
+        </div>
+<!--    </div>-->
+
+</div>
+
+<script src="/layui/layui.js" charset="utf-8"></script>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script>
+
+    // window.onload=function(){
+        /*获取名称*/
+        $.ajax({
+            url:"/account/allname",
+            type:"GET",
+            success:function (result) {
+                $("#nname").text(result.extend.user.nickname)
+            }
+        });
+    // }
+
+        layui.use(['form', 'element','carousel'], function(){
+            var form =layui.form;
+            var element = layui.element;//右上角个人操作选项浮在页面上，即个人订单，个人信息，退出系统等
+            var carousel=layui.carousel;
+            //常规轮播
+            carousel.render({
+                elem: '#lunbo',
+                width:'100%',
+                height:'500px',
+                arrow: 'always'
+            });
+            $.ajax({
+                url:"/user/findInfo",
+                type:"GET",
+                success:function (result) {
+                    var user=result.extend.userInfo;
+                    $("#username").val(user.username).attr("disabled",true);//可把第二个true改成"disabled"，第二个disabled用""与$("#role_name").prop("disabled",false)似乎也可，未实测
+                    $("#password").val(user.password).attr("disabled",true);
+                    $("#nickname").val(user.nickname).attr("disabled",true);
+                    $("#telephone").val(user.telephone).attr("disabled",true);
+                    $("#address").val(user.address).attr("disabled",true);
+                    $("input[name=gender][value=男]").attr("checked", user.gender == '男' ? true : false).attr("disabled",true);
+                    $("input[name=gender][value=女]").attr("checked", user.gender == '女' ? true : false).attr("disabled",true);
+                    form.render();
+                }
+            })
+            //监听提交
+            form.on('submit(formDemo)', function(obj){
+                // var data = obj.data;
+                $.ajax({
+                    url:"/user/modifyUser",
+                    type:"PUT",
+                    data:$("#modify_user form").serialize()+"&_method=PUT",
+                    success : function (result) {
+                        alert(result.msg);
+                        window.location.reload();
+                    }
+                })
+                return false;
+            });
+            //自定义验证规则
+            form.verify({
+                username: function(value){
+                    if(value.length == 0){
+                        return "用户名不能为空";
+                    }
+                },
+                password: [/^[A-Za-z0-9]+$/,"密码必须由数字和字母组成"],
+                telephone: [/^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/,"请输入正确的电话"]
+            });
+        })
+
+
+        function modify() {
+            $("#mod_btn").hide();
+            $("#username").removeAttr("disabled");
+            $("#password").removeAttr("disabled");
+            $("#nickname").removeAttr("disabled");
+            $("#telephone").removeAttr("disabled");
+            $("#address").removeAttr("disabled");
+            $("input[name=gender][value=男]").removeAttr("disabled");
+            $("input[name=gender][value=女]").removeAttr("disabled");
+            $('#sub_btn').attr("style", "display:block;");
+
+
+        }
+
+
+
+</script>
+<script>
+    // //二级菜单联动
+    // //右上角个人操作选项浮在页面上，即个人订单，个人信息，退出系统等
+    // layui.use('element', function(){
+    //     var element = layui.element;
+    //
+    // });
+</script>
+</body>
+</html>

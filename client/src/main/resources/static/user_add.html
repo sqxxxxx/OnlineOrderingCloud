@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html >
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<body>
+<div class="layui-container" style="margin-top: 50px;">
+
+    <div class="layui-container" style="width: 500px;height: 330px;padding-top: 60px;" id="add_user">
+        <form class="layui-form" action="/user/save" method="post">
+            <div class="layui-form-item">
+                <p>用户名以字母开头，长度在6-16之间，只能包含字母、数字</p>
+                <p>密码必须包含大小写字母和数字的组合，不能使用特殊字符，长度在 8-18 之间</p>
+                <p>昵称输入最多包括中文，字母，数字在内的6个字符</p>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户名：</label>
+                <div class="layui-inline">
+                    <input type="text" name="username" id="username"  lay-verify="username" autocomplete="off" placeholder="请输入用户名" class="layui-input" >
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">密码：</label>
+                <div class="layui-inline">
+                    <input type="password" name="password"  id="password" lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">昵称：</label>
+                <div class="layui-inline">
+                    <input type="text" name="nickname" id="nickname"  lay-verify="required|nickname" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">性别：</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="gender" value="男" title="男" checked="">
+                    <input type="radio" name="gender" value="女" title="女">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">联系电话：</label>
+                <div class="layui-inline">
+                    <input type="text" name="telephone" id="telephone"  lay-verify="telephone" placeholder="请输入联系电话" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">地址：</label>
+                <div class="layui-inline">
+                    <input type="text" name="address" id="address"  lay-verify="required" placeholder="请输入地址" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <button class="layui-btn" lay-submit="" style="margin-left: 160px;">提交</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="/layui/layui.js" charset="utf-8"></script>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script>
+    // var result=false;
+    // function verify_repeat(){
+    //     // alert("asd");
+    //     $.ajax({
+    //                 url:'/user/queryUsername',
+    //                 type:'GET',
+    //                 data:{
+    //                    "username": $("#username").val()
+    //                 },
+    //                 success:function (res) {
+    //                     if(res.msg=="处理失败"){
+    //                         alert("用户名重复！");
+    //                         // result=false;
+    //                         // console.log("result1 :"+result);
+    //                     }else{
+    //                         // result=true;
+    //                         // console.log("result2:"+result);
+    //                     }
+    //                 }
+    //             })
+    // }
+        layui.use(['form', 'element','layer'], function(){
+            var form = layui.form;//要在form.on提交前
+            var element = layui.element;
+            var layer=layui.layer;
+            // 自定义验证规则,提交时才验证
+            form.verify({
+                // username: function(value){
+                //     if(value.length == 0){
+                //         return "用户名不能为空";
+                //     }
+                // },
+                username:[/^[a-zA-Z][a-zA-Z0-9]{5,15}$/,"以字母开头，长度在6-16之间，只能包含字母、数字"],
+                password: [/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{7,17}$/,"必须包含大小写字母和数字的组合，不能使用特殊字符，长度在 8-18 之间"],
+                telephone: [/^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/,"请输入正确的手机号码"],
+                nickname:[/^[a-zA-Z0-9\u4e00-\u9fa5]{1,6}$/,"输入最多包括中文，字母，数字在内的6个字符"],
+            });
+
+            // form.on('submit(formDemo)',function () {
+            //     console.log("result3:"+result);
+            //     if(result==true){
+            //         $.ajax({
+            //             url:'/user/save',
+            //             type: "POST",
+            //             data:$("#add_user form").serialize(),
+            //             success:function (res) {
+            //                 console.log("result4:"+result);
+            //                 alert(res.msg);
+            //                 window.location.reload();
+            //             }
+            //         })
+            //     }
+
+
+            // })
+
+        });
+
+
+</script>
+</body>
+</html>

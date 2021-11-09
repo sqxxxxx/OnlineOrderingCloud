@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.CommentsMapper">
+    <resultMap id="commentsMap" type="com.niit.entity.Comments">
+        <id property="id" column="id"/>
+        <result property="star" column="star"/>
+        <result property="comment" column="comment"/>
+        <result property="state" column="state"/>
+        <association property="user" javaType="com.niit.entity.User">
+            <result property="username" column="username"/>
+            <result property="nickname" column="nickname"/>
+        </association>
+        <association property="menu" javaType="com.niit.entity.Menu">
+            <result property="name" column="name"/>
+        </association>
+    </resultMap>
+<!--    点评保存-->
+    <insert id="commentSave" parameterType="comments">
+        insert into comments(`uid`,`mid`,`star`,`comment`)values(#{user.id},#{menu.id},#{star},#{comment})
+    </insert>
+
+<!--    点评查看-->
+    <select id="showComments" resultMap="commentsMap">
+        select c.`id`,u.`username`,u.`nickname`,m.`name`,c.`star`,c.`comment`,c.`state` from `user` u,`menu` m,`comments` c where c.`mid`=m.`id` and c.`uid`=u.`id` and c.`state`=1 limit #{param1},#{param2};
+    </select>
+
+
+    <select id="commentsCount" resultType="int">
+        select count(*) from `comments` where `state`=1
+    </select>
+
+</mapper>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html >
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<style>
+    .layui-table-cell{
+        font-size:14px;
+        height: auto;
+        padding: 0 5px;
+        line-height: normal;
+        overflow: visible;
+        text-overflow: inherit;
+        white-space: normal;
+        word-break: break-all;
+    }
+    /*注意layui-table-cell同时也是layui内置样式*/
+</style>
+<!--class="layui-layout-body"-->
+<body >
+<div class="layui-container" style="width: 750px;width: 1070px">
+<!--    <div class="layui-container" style="width: 750px;padding-top:50px;border: 1px solid #009688;border-radius: 15px">-->
+<!--        <form class="layui-form" >-->
+<!--                <div style="float: left">-->
+<!--                    <label class="layui-form-label">请选择范围</label>-->
+<!--                    <div class="layui-input-inline">-->
+<!--                        <input type="text" class="layui-input" id="times" name="times" autocomplete="off" placeholder="开始 到 结束">-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div  style="float: right">-->
+<!--                    <label class="layui-form-label">请选择派送状态</label>-->
+<!--                    <div class="layui-input-block">-->
+<!--                        <select name="state" >-->
+<!--                            <option value=-1>全部</option>-->
+<!--                            <option value=0>未派送</option>-->
+<!--                            <option value=1>已派送</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--&lt;!&ndash;                <div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <label class="layui-form-label">页面</label><input type="text" >&ndash;&gt;-->
+<!--&lt;!&ndash;                    <label class="layui-form-label">数量</label><input type="text" >&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--                <div class="layui-form-item" >-->
+<!--                    <div class="layui-input-block">-->
+<!--                        <button class="layui-btn" lay-submit lay-filter="formDemo" style="margin-right: 200px" >立即提交</button>-->
+
+<!--                        <button type="reset" class="layui-btn layui-btn-primary" >重置</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+
+
+<!--        </form>-->
+<!--    </div>-->
+
+    <div class="demoTable">
+        <div class="layui-form-item">
+            <label class="layui-form-label">请选择范围</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="times" name="times" autocomplete="off" placeholder="开始 到 结束">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">请选择派送状态</label>
+            <div class="layui-input-block">
+                <select id="state" name="state" >
+                    <option value=-1>全部</option>
+                    <option value=0>未派送</option>
+                    <option value=1>已派送</option>
+                </select>
+            </div>
+        </div>
+        <button class="layui-btn" data-type="reload">搜索</button>
+    </div>
+<!--    <div class="layui-container" style="width: 900px;height: 600px;margin-top: 0px;padding-top: 60px;">-->
+        <table class="layui-hide layui-table-cell" id="test"  lay-filter="test"></table>
+<!--    </div>-->
+
+</div>
+</body>
+</html>
+<!--templet,遵循laytpl语法<a class="layui-btn layui-btn-xs" lay-event="detail">详情</a>-->
+<!--{{}} 在laytpl中是默认的分隔符-->
+<script type="text/html" id="barDemo">
+<!--    <a class="layui-btn layui-btn-xs" lay-event="detail">详情</a>-->
+    {{#  if(d.orderinfo.state ==1 ){ }}
+    <span >已派送</span>
+    {{#  } else { }}
+    <a class="layui-btn layui-btn-xs" lay-event="send">现在派送</a>
+    {{#  } }}
+</script>
+<script src="layui/layui.js" charset="utf-8"></script>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script>
+
+    layui.use(['table', 'laydate','form','element'],function(){
+        var table = layui.table;
+        var laydate = layui.laydate;
+        var element = layui.element;
+        var form=layui.form;
+
+        var orderdata=table.render({
+            elem: '#test'
+            ,url:'/order/findOrderByState'
+            ,title: '订单列表'
+            ,id:'testReload'
+            ,cols: [
+                [
+                    {field:'id', width:100, title: '编号', sort: true,templet:function (data) {
+                        return data.orderinfo.id;
+                        }},
+                    {width:80,title:'派送状态',templet:'#barDemo'},
+                    {field:'orderid', width:200, title: '订单号', sort: true,templet:function (data) {
+                            return data.orderinfo.orderid;
+                        }},
+                    {field: 'nickname', width: 50, title: '用户', templet: function (data) {
+                            return data.user.nickname;
+                        }},
+                    {field: 'menuname', width: 150, title: '菜名'},
+                    {field: 'total', width: 50, title: '总数', templet: function (data) {
+                            return data.orderinfo.total;
+                        }},
+                    {field: 'money', width: 100, title: '总价', templet: function (data) {
+                        return data.orderinfo.money;
+                    }},
+                    {field:'telephone', width:100, title: '联系电话',templet:function(data){
+                        return data.user.telephone;
+                    }},
+                    {field:'address', width:100, title: '地址',templet:function(data){
+                        return data.user.address;
+                    }},
+                    {field:'date',width:100,  title: '下单时间', templet:function (data) {
+                        return data.orderinfo.date;
+                        }}
+
+                    // ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:90}
+                ]
+            ]
+            ,page: true
+        });
+
+        var $ = layui.$, active = {
+            reload: function(){
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        // key:{
+                            times:$('#times').val(),
+                            state:$('#state option:selected').val()
+                        // }
+
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        // console.log(orderdata.config.page.pages+"  "+orderdata.config.limit);
+
+        //监听提交 lay-filter="formDemo"
+        // form.on('submit(formDemo)', function(data) {
+        //     var times=data.field.times;
+        //     var state=data.field.state;
+        //     //layui内置
+        //     var page=orderdata.config.page.pages;//从第几页开始显示
+        //     var limit=orderdata.config.limit;//一页显示多少内容
+        //     table.reload('testReload',{
+        //         page:{
+        //             curr:1//重新从第 1 页开始
+        //         }
+        //         ,where:{//传参给后台，可传多个参数到后台... ，分隔
+        //             times:times
+        //             ,state:state
+        //             ,page:page
+        //             ,limit:limit
+        //         }
+        //         , url: 'order/findOrderByState'
+        //     });
+        //     return false;
+        // });
+        table.on('tool(test)',function (obj) {
+            var data=obj.data;
+            if(obj.event==='send'){
+                layer.confirm('确定配送吗？', function(index){
+                    $.ajax({
+                        url: "/order/updateState/"+data.orderinfo.id,
+                        type:"PUT",
+                        success:function (result) {
+                            alert(result.msg);
+                            window.location.reload();
+                            layer.close(index);
+                        }
+                    });
+                });
+            }
+        })
+        //时间日期选择器
+        laydate.render({
+            elem: '#times'
+            ,type: 'datetime'
+            ,range: '~'
+            // ,format: 'yyyy年M月d日H时m分s秒'
+            ,format:'yyyy-MM-dd HH:mm:ss'
+        });
+    });
+
+
+</script>

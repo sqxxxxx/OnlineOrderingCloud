@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html >
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<style>
+    .icon-css-view{
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        top: 7px;
+        right: 0px;
+        text-align: center;
+    }
+</style>
+<body class="layui-layout-body">
+<div class="layui-container" style="margin-top: 50px;width: 1000px;">
+
+    <table class="layui-hide" id="test" style="width: 960px" lay-filter="test"></table>
+
+
+
+        <div id="modify_user" style="display: none" >
+            <form method="post" class="layui-form" action="">
+                <!--                一定要有layui-form,否则验证不生效-->
+                <input name="id" id="id" type="hidden">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户名：</label>
+                    <div class="layui-inline">
+                        <input type="text" id="username" name="username" lay-verify="username"  autocomplete="off" placeholder="请输入用户名" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密码：</label>
+                    <div class="layui-inline">
+                        <input type="password" id="password" name="password" lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                        <div class="icon-css-view" >
+                            <i id="iconShowView" class="layui-icon icon-mimaxianshi" ></i>
+                            <i id="iconHiddenView" class="layui-icon icon-mimayincang" hidden></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">昵称：</label>
+                    <div class="layui-inline">
+                        <input type="text" id="nickname" name="nickname" lay-verify="required" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别：</label>
+                    <div class="layui-input-inline">
+                        <input type="radio" id="male" name="gender" value="男" title="男" >
+                        <input type="radio"  id="female" name="gender" value="女" title="女">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话：</label>
+                    <div class="layui-inline">
+                        <input type="text" id="telephone" name="telephone" lay-verify="telephone" placeholder="请输入联系电话" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">地址：</label>
+                    <div class="layui-inline">
+                        <input type="text" id="address" name="address" lay-verify="required" placeholder="请输入地址" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+</div>
+</body>
+</html>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script  src="layui/layui.js" charset="utf-8"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="update">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script>
+
+
+
+        // 是否显示密码
+        var password = $("#password");
+        $("#iconShowView").on('click', function(e){
+            password[0].type = "text";
+            $("#iconShowView")[0].hidden = true;
+            $("#iconHiddenView")[0].hidden = false;
+            form.render();
+        });
+        $("#iconHiddenView").on('click', function(e){
+            password[0].type = "password";
+            $("#iconShowView")[0].hidden = false;
+            $("#iconHiddenView")[0].hidden = true;
+            form.render();
+        });
+
+        layui.use('table', function(){
+            var table = layui.table;
+
+            table.render({
+                elem: '#test'
+                ,url:'/user/findAll'
+                ,title: '用户列表'
+                ,cols: [
+                    [
+                        {field:'id', width:80, title: '编号', sort: true}
+                        ,{field:'username', width:100, title: '用户名'}
+                        ,{field:'nickname', width:100, title: '昵称'}
+                        ,{field:'gender', width:60, title: '性别'}
+                        ,{field:'telephone', width:140, title: '联系电话'}
+                        ,{field:'registerdate', width:120, title: '注册日期'}
+                        ,{field:'address', width:200, title: '地址'}
+                        ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:160}
+                    ]
+                ]
+                ,page:{
+                    limits:[5,10]
+                }
+            });
+
+            //监听行工具事件
+            table.on('tool(test)', function(obj){
+                var data = obj.data;
+                if(obj.event === 'del'){
+                    layer.confirm('确定要删除吗？', function(index){
+                        $.ajax({
+                            url:'/user/deleteById/'+data.id,
+                            type:'PUT',
+                            success:function (res) {
+                                if(res.msg=="处理成功")
+                                layer.msg("已删除",function () {
+                                    window.location.reload();
+                                    layer.close(index);
+                                })
+                            }
+                        })
+                        // window.location.href="/user/deleteById/"+data.id;
+
+                    });
+                }else if(obj.event === 'update'){
+                    queryUser(data.id);
+                    var update = layui.use(['layer'],function () {
+                        var layer = layui.layer,$=layui.$;
+
+                        //定义验证规则
+                        var username_rule=/^[a-zA-Z][a-zA-Z0-9]{5,15}$/;
+                        var password_rule=/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{7,17}$/;
+                        var telephone_rule=/^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/;
+                        var nickname_rule=/^[a-zA-Z0-9\u4e00-\u9fa5]{1,6}$/;
+                        //verify_result为总验证结果，其余为分验证结果
+                        var verify_result=true,verify_username_result,verify_password_result,verify_telephone_result,verify_nickname_result,verify_address_result=true;
+                        layer.open({
+                            type:1,                     //类型
+                            area:['400px','350px'],     //定义宽和高
+                            title:'用户信息修改',           //题目
+                            content: $('#modify_user'), //打开的内容
+                            btn: ['确认修改', '取消'],
+                            success:function(layero,index){
+                                    //用户名验证
+                                    $("#username").blur(function () {
+                                        var verify_username=username_rule.test($("#username").val());
+                                        if(!verify_username){
+                                            layer.msg("以字母开头，长度在6-16之间，只能包含字母、数字");
+                                            verify_username_result=false;
+                                        }else {
+                                            verify_username_result=true;
+                                            verify_result=queryState(verify_username_result,verify_password_result,verify_telephone_result,verify_nickname_result,verify_address_result);
+                                        }
+                                    })
+                                    //密码验证
+                                    $("#password").blur(function () {
+                                        var verify_password=password_rule.test($("#password").val());
+                                        if(!verify_password){
+                                            layer.msg("必须包含大小写字母和数字的组合，不能使用特殊字符，长度在 8-18 之间")
+                                            verify_password_result=false;
+                                        }else {
+                                            verify_password_result=true;
+                                            verify_result=queryState(verify_username_result,verify_password_result,verify_telephone_result,verify_nickname_result,verify_address_result);
+                                        }
+                                    })
+
+                                    //电话验证
+                                    $("#telephone").blur(function () {
+                                        var verify_telephone=telephone_rule.test($("#telephone").val());
+                                        if(!verify_telephone){
+                                            layer.msg("输入正确的手机号码");
+                                            verify_telephone_result=false;
+                                        }else {
+                                            verify_telephone_result=true;
+                                            verify_result=queryState(verify_username_result,verify_password_result,verify_telephone_result,verify_nickname_result,verify_address_result);
+                                        }
+                                    })
+
+                                    //昵称验证
+                                    $("#nickname").blur(function () {
+                                        var verify_nickname=nickname_rule.test($("#nickname").val());
+                                        if(!verify_nickname){
+                                            layer.msg("输入最多包括中文，字母，数字在内的6个字符");
+                                            verify_nickname_result=false;
+                                        }else {
+                                            verify_nickname_result=true;
+                                            verify_result=queryState(verify_username_result,verify_password_result,verify_telephone_result,verify_nickname_result,verify_address_result);
+                                        }
+                                    })
+
+                                    //地址验证
+                                    $("#address").blur(function () {
+                                        if($("#address").val().length==0){
+                                            layer.msg("地址不能为空");
+                                            verify_address_result=false;
+                                        }else {
+                                            verify_address_result=true;
+                                            verify_result=queryState(verify_username_result,verify_password_result,verify_telephone_result,verify_nickname_result,verify_address_result);
+                                        }
+                                    })
+                            },
+                            yes: function (index, layero) {
+                                //定义验证规则
+                                if(verify_result==true){
+                                    $.ajax({
+                                        url:"/user/modify",
+                                        type:"PUT",
+                                        data:$("#modify_user form").serialize(),
+                                        success : function (result) {
+                                            alert(result.msg);
+                                            window.location.reload();
+                                            layer.close(update);
+                                        }
+                                    });
+                                }else{
+                                    layer.msg("请检查您的输入");
+                                }
+
+                            }
+                        });
+                    });
+                }
+            });
+        });
+
+        function queryState(vu,vp,vt,vn,va) {
+            if(vu&&vp&&vt&&vn&&va)
+                return true;
+            else return false;
+        }
+        /*查询修改用户所需信息*/
+        function queryUser(id) {
+            layui.use(['form','element'], function () {
+                var form = layui.form; //只有执行了这一步，部分表单元素才会自动修饰成功
+                var element = layui.element;
+
+                /*查询单个用户信息*/
+                $.ajax({
+                    url: "/user/adminFindInfo/" + id,
+                    type: "GET",
+                    success: function (result) {
+                        var user = result.extend.userInfo;
+                        $("#id").val(user.id)
+                        $("#username").val(user.username)
+                        $("#password").val(user.password)
+                        $("#nickname").val(user.nickname);
+                        $("#telephone").val(user.telephone);
+                        $("#address").val(user.address);
+                        $("input[name=gender][value=男]").attr("checked", user.gender == '男' ? true : false);
+                        $("input[name=gender][value=女]").attr("checked", user.gender == '女' ? true : false);
+                        form.render();
+                    }
+                });
+            });
+        }
+
+
+</script>

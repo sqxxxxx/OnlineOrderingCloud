@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html >
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<body>
+<style>
+    .layui-table-cell{
+        font-size:14px;
+        height: auto;
+        padding: 0 5px;
+        line-height: normal;
+        overflow: visible;
+        text-overflow: inherit;
+        white-space: normal;
+        word-break: break-all;
+    }
+    /*注意layui-table-cell同时也是layui内置样式*/
+</style>
+<div class="layui-container" style="width: 1250px;height: 600px;margin-top: 0px;left: 0;">
+
+    <!-- 顶部菜单开始 -->
+    <div class="layui-header" style="margin-bottom: 60px">
+        <div class="layui-logo" style="width: 100px;height: 100px;"><img src="favicon.ico" style="width: 100%;height: 100px"/></div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="/images/img.jpeg" class="layui-nav-img">
+                    <span id="nickname"></span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="index.html">自由点菜</a></dd>
+                    <dd><a href="order.html">个人订单</a></dd>
+                    <dd><a href="modify_info.html">个人信息</a></dd>
+                    <dd><a href="feedback.html">信息反馈</a></dd>
+                    <dd><a href="comment.html">菜品点评</a></dd>
+                    <dd><a href="/account/logout/user">退出系统</a></dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+
+    <!--    轮播动画-->
+    <div class="layui-carousel" id="lunbo" lay-filter="lunbo" style="margin-bottom: 50px">
+        <div carousel-item="">
+            <div><img src="/images/canting.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-001.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-002.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-007.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-009.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-005.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-006.jpg" style="width: 100%;height: 100%"></div>
+        </div>
+    </div>
+<!--    <div style="margin-left: 460px; width: 300px;">-->
+<!--        <a href="index.html">首页</a>&nbsp;&nbsp;|&nbsp;&nbsp;欢迎回来！<a href="order.html" id="nickname"></a><a href="/account/logout/user">&nbsp;&nbsp;&nbsp;<button class="layui-btn layui-btn-warm layui-btn-radius">退出</button></a>-->
+<!--    </div>-->
+
+        <table class="layui-hide layui-table-cell" id="test" lay-filter="test"></table>
+</div>
+
+
+
+<!--//订单意见-->
+<div id="evaluate" class="layui-container" style="display: none;margin: 0 auto;width: 500px;" >
+    <form class="layui-form" action="/feedback/commentSave" method="post">
+        <!--                action与method不填-->
+        <!--                一定要有layui-form,否则验证不生效-->
+        <input type="hidden" name="id" id="id">
+        <div class="layui-input-block">
+            <h1 >您对此单的评价：</h1>
+        </div>
+
+        <div class="layui-form-item" >
+            <label class="layui-form-label">您对此次订单的满意度：</label>
+            <div class="layui-inline">
+                <div id="satisfy"></div>
+            </div>
+        </div>
+        <div>
+            <input type="hidden" id="star" name="star">
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label" >您对此次订单的建议或意见</label>
+            <div class="layui-input-block " >
+                <textarea id="comments" name="comments" placeholder="请输入。。。"  style="width: 400px; height: 250px"></textarea>
+            </div>
+        </div>
+<!--        <div class="layui-form-item">-->
+<!--            <div class="layui-input-block">-->
+<!--                <button class="layui-btn" lay-submit lay-filter="formDemo" >立即提交</button>-->
+
+<!--                <button type="reset" class="layui-btn layui-btn-primary" style="margin-left: 100px">重置</button>-->
+<!--            </div>-->
+<!--        </div>-->
+    </form>
+</div>
+<!--<table class="layui-hide" id="detail" lay-filter="detail" style="display: none"></table>-->
+</body>
+</html>
+<script type="text/html" id="barDemo">
+<!--    <a class="layui-btn layui-btn-xs" lay-event="order">再来一单</a>-->
+    <a class="layui-btn layui-btn-xs " lay-event="evaluate" >评价</a>
+    {{#  if(d.orderinfo.state ==0 ){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete">退单</a>
+    {{#  } }}
+</script>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="/layui/layui.js" charset="utf-8"></script>
+<script>
+    /*获取名称*/
+    $.ajax({
+        url:"/account/allname",
+        type:"GET",
+        success:function (result) {
+            $("#nickname").text(result.extend.user.nickname)
+        }
+    });
+    /*获取订单信息*/
+    layui.use(['table','element','carousel','form','rate','layer'], function(){
+        var table = layui.table;
+        var element = layui.element;//二级菜单联动
+        var carousel=layui.carousel;
+        var form=layui.form;
+        var rate=layui.rate;
+        var layer=layui.layer;
+        var $=layui.$;
+        //常规轮播
+        carousel.render({
+            elem: '#lunbo',
+            width:'100%',
+            height:'500px',
+            arrow: 'always'
+        });
+        //自定义文本
+        rate.render({
+            elem: '#satisfy'
+            // ,value: 3
+            ,text: true
+            ,choose: function (value) {
+                $('#star').val(value);
+            }
+            ,setText: function(value){ //自定义文本的回调
+                var arrs = {
+                    '1': '非常差'
+                    ,'2': '差'
+                    ,'3': '一般'
+                    ,'4': '满意'
+                    ,'5': '超赞'
+                };
+                this.span.text(arrs[value] || ( value + "星"));
+            }
+        })
+        table.render({
+            elem: '#test'
+            ,url:'/order/findAllByUid'
+            ,title: '订单列表'
+            ,cols: [
+                [
+                    {field:'id', width:100, title: '编号', sort: true,templet:function (data) {
+                        return data.orderinfo.id;
+                        }},
+                    {field:'orderid', width:200, title: '订单号',sort:true,templet:function (data) {
+                        return data.orderinfo.orderid;
+                        }},
+                    {field:'menuname', width:300, title: '菜名'},
+                    {field:'total', width:50, title: '总数',templet:function (data) {
+                        return data.orderinfo.total;
+                        }},
+                    {field:'money', width:100, title: '总价',templet:function (data) {
+                        return data.orderinfo.money;
+                        }},
+                    {field:'date',width:200,  title: '下单时间',templet:function (data) {
+                        return data.orderinfo.date;
+                        }},
+                    {field:'state', width:100, title: '订单状态',templet:function(data){
+                        var result = "";
+                        if (data.orderinfo.state==0){
+                            result = "未派送";
+                        }else if (data.orderinfo.state==1){
+                            result = "已派送";
+                        }
+                        return result
+                    }
+                },
+                    {title:'操作', toolbar: '#barDemo',templet:'#barDemo'}
+                ]
+            ]
+            ,page: true
+        });
+
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'delete'){
+                // window.location.href="/order/save/"+data.id;
+                // alert(data.orderinfo.id);
+                // alert(data.menuname);
+                layer.open({
+                    type:1,                     //类型
+                    title:'提示',           //题目
+                    content:"<div style='text-align: center'>"+'确定退单？'+"</div>", //打开的内容
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        // alert(data.orderinfo.orderid)
+                        $.ajax({
+                            url:"/order/delete/"+data.orderinfo.orderid,
+                            type:"delete",
+                            success : function (result) {
+                                alert(result.msg);
+                                window.location.reload();
+                                layer.close();
+                            }
+                        });
+                    }
+                })
+            }else if(obj.event==='evaluate'){
+                layer.open({
+                    type:1,                     //类型
+                    area:['600px','525px'],     //定义宽和高
+                    title:'订单评价',           //题目
+                    content: $('#evaluate'), //打开的内容
+                    btn: ['确认提交', '取消'],
+                    yes: function (index, layero) {
+                        $("#id").val(data.orderinfo.id);
+                        $.ajax({
+                            url:"/order/evaluate",//未完待续
+                            type:"POST",
+                            data:$("#evaluate form").serialize()+ "&_method=PUT",
+                            // data: {"menuname":data.menuname},用@RequestParam("menuname")接收
+                            success : function (result) {
+                                alert(result.msg);
+                                window.location.reload();
+                                layer.close();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+    });
+</script>
+<script>
+
+</script>

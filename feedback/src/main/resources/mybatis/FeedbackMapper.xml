@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.FeedbackMapper">
+    <resultMap id="feedbackMap" type="com.niit.entity.Feedback">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="ufeedback" column="ufeedback"/>
+        <result property="email" column="email"/>
+        <result property="state" column="state"/>
+
+        <!-- 映射user -->
+        <association property="user" javaType="com.niit.entity.User">
+            <result property="username" column="username"/>
+            <result property="nickname" column="nickname"/>
+        </association>
+    </resultMap>
+<!--    反馈保存-->
+    <insert id="save" parameterType="Feedback">
+        insert into `feedback`(`uid`,`title`,`email`,`ufeedback`,`state`)values (#{user.id},#{title},#{email},#{ufeedback},1)
+    </insert>
+
+    <select id="feedbackCount" resultType="int">
+        select count(*) from `feedback` where `state`=1;
+    </select>
+<!--    反馈查看-->
+    <select id="showFeedback" resultMap="feedbackMap">
+        select f.`id`,u.`username`,u.`nickname`,`title`,`email`,`ufeedback`, f.`state` from `feedback` f, `user` u where f.`uid`=u.`id` and f.`state`=1 limit #{param1},#{param2};
+    </select>
+</mapper>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<style>
+/*.paybox{*/
+/*    position: fixed;*/
+/*    bottom: 0px;*/
+/*    z-index: 9999;*/
+/*}*/
+</style>
+<body>
+<div class="layui-container" style="width: 1250px;height: 600px;margin-top: 0px;left: 0;">
+
+
+    <!-- 顶部菜单开始 -->
+    <div class="layui-header" style="margin-bottom: 60px">
+        <div class="layui-logo" style="width: 100px;height: 100px"><img src="favicon.ico" style="width: 100%;height: 100px"/></div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="/images/img.jpeg" class="layui-nav-img">
+                    <span id="nickname"></span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="index.html">自由点菜</a></dd>
+                    <dd><a href="order.html">个人订单</a></dd>
+                    <dd><a href="modify_info.html">个人信息</a></dd>
+                    <dd><a href="feedback.html">信息反馈</a></dd>
+                    <dd><a href="comment.html">菜品点评</a></dd>
+                    <dd><a href="/account/logout/user">退出系统</a></dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+
+    <!--    轮播动画-->
+    <div class="layui-carousel" id="lunbo" lay-filter="lunbo" style="margin-bottom: 50px">
+        <div carousel-item="">
+            <div><img src="/images/canting.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-001.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-002.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-007.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-009.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-005.jpg" style="width: 100%;height: 100%"></div>
+            <div><img src="/images/canting-006.jpg" style="width: 100%;height: 100%"></div>
+        </div>
+    </div>
+
+    <div style="float: left;">
+        <table class="layui-hide" id="test" lay-filter="test"></table>
+    </div>
+
+
+    <div style="float: right;">
+<!--        <div class="layui-input-block">-->
+<!--            <h1 style="letter-spacing: 100px;text-align: center">购物车</h1>-->
+<!--        </div>-->
+<!--        <div class="layui-container" style="width: 550px;margin-top: 0px;padding-top: 60px;">-->
+            <table class="layui-hide" id="cart" lay-filter="cart" ></table>
+<!--        </div>-->
+        <div class="bottom-panel">
+            <span>总数:</span><span style="color: red;margin-right: 15px" id="total">---</span>
+            <span>合计金额:</span><span style="color:red;margin-right: 20px" id="money">---</span>
+        </div>
+        <div class="layui-form-item" >
+            <button class="layui-btn" style="margin-left: 160px;" id="submit_order">提交</button>
+<!--            <button type="reset" class="layui-btn layui-btn-primary" style="margin-left: 100px">重置</button>-->
+        </div>
+    </div>
+
+
+
+
+</div>
+<div id="barDemo" style="display: none">
+    <!--    -->
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="reduce" id="reduce" >
+        <i class="layui-icon icon-jianshao"></i>
+        <!--    引用了自定义icon，diss一下官方文档也有问题（或者是这个版本layui太老了）-->
+    </a>
+
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="add" id="add">
+        <i class="layui-icon layui-icon-add-circle"></i>
+    </a>
+
+
+</div>
+<div id="barDemo1" style="display: none">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete">删除</a>
+</div>
+<div id="commentContainer" style="display: none">
+    <a class="layui-btn layui-btn-xs" href="comment.html">评论</a>
+</div>
+
+</body>
+
+<script src="js/jquery-3.3.1.min.js"></script>
+<script  src="layui/layui.js" charset="utf-8"></script>
+<!--<script type="text/html" id="barDemo">-->
+<!--    <a class="layui-btn layui-btn-xs" lay-event="reduce">删除</a>-->
+<!--    <a class="layui-btn layui-btn-xs" lay-event="add">购买</a>-->
+<!--</script>-->
+<script>
+
+    /*获取名称*/
+    $.ajax({
+        url:"/account/allname",
+        type:"GET",
+        success:function (result) {
+            $("#nickname").text(result.extend.user.nickname)
+        }
+    });
+    // $(document).ready(function(){
+    //     var i=0;
+    //         $(".intro").each(function(){
+    //             $(this).text(i++);
+    //
+    //         });
+    // });
+    /*菜单列表*/
+    layui.use(['table','element','layer','carousel'], function(){
+        var table = layui.table;
+        var element = layui.element;//二级菜单联动
+        var layer=layui.layer;
+        var carousel=layui.carousel;
+
+        //常规轮播
+        carousel.render({
+            elem: '#lunbo',
+            width: '100%',
+            height:'500px',
+            arrow: 'always'
+        });
+
+        //菜单初始化
+            table.render({
+            elem: '#test'
+            ,url:'/menu/findAll'
+            ,title: '菜单列表'
+            ,cols: [
+                [
+                    {field:'id', width:75, title: '编号', sort: true}
+                    ,{field:'name', width:150, title: '菜品'}
+                    ,{field:'price', width:100, title: '单价'}
+                    ,{field:'flavor', width:75, title: '口味'}
+                    ,{field:'tid',width:75,  title: '分类',templet:function(data){
+                        return data.type.name
+                    }
+                }
+                    // ,{field:'comment',title:'评论',toolbar:'#commentContainer',width:100}
+                // fixed: 'right'
+                    ,{field:'operation', title:'操作', toolbar: '#barDemo', width:100}
+
+                ]
+            ]
+            ,page: true
+        });
+
+
+            //购物车功能
+        var goodsData = [];//购物车数据
+        var cart=table.render({
+            data:goodsData
+            ,elem: '#cart'
+            ,title: '购物车'
+            ,cols: [
+                [
+                    {field:'id', width:75, title: '编号',sort: true}
+                    ,{field:'name', width:150, title: '菜品名称'}
+                    ,{field:'price', width:100, title: '单价'}
+                    ,{field:'total', width:75, title: '数量'}
+                    ,{field:'money', width:100, title: '此项价格'}
+                    ,{ title:'操作', toolbar: '#barDemo1'}
+                ]
+            ]
+            ,page: true
+
+        });
+
+        table.on('tool(cart)',function (obj) {
+            var data=obj.data;
+            if(obj.event==='delete'){
+                for (var i = 0; i < goodsData.length; i++) {
+                    var gd = goodsData[i];
+                    if (data.id == gd.id) {
+                        goodsData.splice(i, 1);
+                    }
+                }
+                /**
+                 * 开始刷新购物车
+                 */
+                shoppingCartRefresh();
+            }
+        })
+
+        //监听行工具事件,购物车刷新
+        table.on('tool(test)', function(obj){
+
+            var data=obj.data;
+            var isNew = true;
+            var vkey=data.id;
+                if(obj.event === 'reduce'){
+                        for (var i = 0; i < goodsData.length; i++) {
+                            var gd = goodsData[i];
+                            if (data.id == gd.id) {
+                                if(parseInt(gd.total)>1){
+                                    gd.total=parseInt(gd.total)-1;
+                                }else{
+                                    goodsData.splice(i, 1);
+                                }
+                            }
+                        }
+                    shoppingCartRefresh();
+                }
+                //判断当前数据是否为新增数据
+                else if(obj.event ==='add'){
+                    // alert($(obj.tr).attr("data-index"));
+
+                    //遍历购物车，是否存在产品；存在，数量+1 计算金额
+                    for (var i = 0; i < goodsData.length; i++) {
+                        var tRow = goodsData[i];//获取某一行购物车数据
+                        if (vkey == tRow.id) {//编号相等
+                            tRow.total = parseInt(tRow.total) + 1;//数量
+                            tRow.money = Mul(tRow.total, tRow.price,2);//乘法，求价格
+                            // tRow.money=tRow.amount * parseInt(tRow.price) ;
+                            isNew = false;
+                            break;
+                        }
+                    }
+                    if (isNew) {
+                        var tmpRow = {};
+                        tmpRow.id = data.id;
+                        tmpRow.name = data.name;
+                        tmpRow.price = data.price;
+                        tmpRow.total = 1;
+                        tmpRow.money=data.price;
+                        goodsData.push(tmpRow);
+                    }
+                    shoppingCartRefresh();
+            }
+
+        });
+
+        //购物车数据重载
+        function shoppingCartRefresh(){
+            var total = 0;
+            var money = 0;
+            //数据表格重载
+            cart.reload({ data: goodsData });
+            //计算总数 合计金额
+            for (var i = 0; i < goodsData.length; i++) {
+                total = accAdd(total, goodsData[i].total);
+                money = (accAdd(money, parseFloat(goodsData[i].money))).toFixed(2);
+            }
+            console.log("总数量:"+total);
+            console.log("总金额:"+money);
+            $("#total").html(total);
+            $("#money").html(money);
+        }
+
+
+    //小数加法
+        function accAdd(arg1,arg2){
+            var r1,r2,m;
+            try{r1=arg1.toString().split(".")[1].length}catch(e){r1=0}
+            try{r2=arg2.toString().split(".")[1].length}catch(e){r2=0}
+            m=Math.pow(10,Math.max(r1,r2));
+            return (arg1*m+arg2*m)/m;
+        }
+
+
+    //小数乘法
+    function Mul(arg1,arg2,fix) {
+        if(!parseInt(fix)==fix)
+        {
+            return;
+        }
+        var m=0,s1=arg1.toString(),s2=arg2.toString();
+        try{
+            m+=s1.split(".")[1].length;
+        }catch(e){
+            console.log(e);
+        }
+        try{
+            m+=s2.split(".")[1].length ;//两个乘数后面总共有几位小数
+        }catch(e){
+            console.log(e);
+        }
+        if(m>fix){//Number() 函数把对象的值转换为数字。注意逗号不在引号里。
+            return (Math.round(Number(s1.replace(".",""))*Number(s2.replace(".",""))/Math.pow(10,m-fix))/Math.pow(10,fix));//pow(x,y),x的y次方
+        }else if(m<=fix){
+            return (Number(s1.replace(".",""))*Number(s2.replace(".",""))/Math.pow(10,m)).toFixed(fix);//toFixed(n) :取小数点后n位
+        }else{
+            return (arg1*arg2).toFixed(fix);
+        }
+    }
+
+        $("#submit_order").click(function () {
+            var total_and_money={
+                "id":"-1",
+                "name":"总计",
+                "total":$("#total").text(),
+                "money":$("#money").text()
+            }
+            goodsData.push(total_and_money);
+            $.ajax({
+                url:"/order/infosave/",
+                data:JSON.stringify(goodsData),//JSON.stringify() 方法用于将 JavaScript 值转换为 JSON 字符串
+                type: "POST",
+                contentType:"application/json",
+                success:function (data) {
+                    // console.log(result.msg);
+                    // alert(result.msg);
+                    if(data.msg=="处理成功")
+                        alert("购买成功！")
+                    // alert("下单成功！");
+                    goodsData={};
+                    cart.reload({ data: goodsData });
+                    // shoppingCartRefresh();
+                    window.location.reload();
+                }
+            })
+        })
+
+
+
+
+
+
+    })
+</script>

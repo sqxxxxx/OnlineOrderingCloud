@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.MenuMapper">
+
+<resultMap id="menuMap" type="com.niit.entity.Menu">
+	<id property="id" column="id"/>
+	<result property="name" column="name"/>
+	<result property="author" column="author"/>
+	<result property="price" column="price"/>
+	<result property="flavor" column="flavor"/>
+	<association property="type" select="com.niit.dao.TypeMapper.findById" column="tid"/>
+</resultMap>
+
+    <select id="findAll" resultMap="menuMap">
+		select id,name,price,flavor,tid from `menu` where `state`=1 order by id limit #{param1},#{param2}
+	</select>
+
+<!--	/*查询所有信息数目*/-->
+	<select id="count" resultType="int">
+		select count(*) from `menu` where `state`=1;
+	</select>
+
+<!--	//添加菜品-->
+	<insert id="save" parameterType="Menu" >
+		insert into `menu`(name,price,flavor,tid) values(#{name},#{price},#{flavor},#{type.id})
+	</insert>
+
+<!--	/*查询单个菜单*/-->
+	<select id="findById" resultMap="menuMap">
+		select id,name,price,flavor,tid from `menu` where id = #{id}
+	</select>
+
+<!--	/*修改菜品*/-->
+	<update id="update" parameterType="Menu">
+		update `menu` set name = #{name},price = #{price},flavor = #{flavor},tid=#{type.id} where id = #{id}
+	</update>
+
+<!--	/*删除menu某个菜品*/-->
+	<update id="deleteById" parameterType="long">
+		update `menu` set `state`=0  where id = #{id}
+	</update>
+
+	<select id="findAllMenu" resultType="Menu">
+		select `id`,`name` from `menu`
+	</select>
+</mapper>
